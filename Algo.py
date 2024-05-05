@@ -2,6 +2,7 @@ import sys
 
 sys.setrecursionlimit(10000)
 
+
 def lire_fichier(nom_fichier):
     T = []
     C = []
@@ -130,14 +131,16 @@ def main():
     print("Exemple 2 top down :", parcours_optimal_top_down(T, C, A, B))
     print("Exemple 2 bottom up:", parcours_optimal_bottom_up(T, C, A, B))
 
-
     # Avec le fichier MP.txt
     T, C = lire_fichier('MP.txt')
-    A,B = -3, 7
+    A, B = -3, 7
     print("Résultat Stratégie Gloutonne:", strategie_gloutonne(T, C, A, B))
     print("Résultat Parcours Optimal Naif:", parcours_optimal_naif(T, C, A, B))
-    print("Résultat Parcours Optimal Top-Down:", parcours_optimal_top_down(T, C, A, B))
-    print("Résultat Parcours Optimal Bottom-Up:", parcours_optimal_bottom_up(T, C, A, B))
+    print("Résultat Parcours Optimal Top-Down:",
+          parcours_optimal_top_down(T, C, A, B))
+    print("Résultat Parcours Optimal Bottom-Up:",
+          parcours_optimal_bottom_up(T, C, A, B))
+
 
 if __name__ == "__main__":
     main()
