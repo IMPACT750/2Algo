@@ -13,16 +13,13 @@ def lire_fichier(nom_fichier):
     return T, C
 
 
-
-
 def strategie_gloutonne(T, C, A, B):
     n = len(T)
     indices_visites = []
     gain_total = 0
-    symbole_prec = None
 
     for i in range(n):
-        if symbole_prec is None or C[i] != symbole_prec:
+        if i == 0 or C[i] != C[i - 1]:
             gain = B * T[i]
         else:
             gain = A * T[i]
@@ -30,7 +27,6 @@ def strategie_gloutonne(T, C, A, B):
         if gain > 0:
             gain_total += gain
             indices_visites.append(i)
-            symbole_prec = C[i]
 
     return gain_total, indices_visites
 
@@ -38,24 +34,24 @@ def strategie_gloutonne(T, C, A, B):
 def parcours_optimal_naif(T, C, A, B):
     memorisation = {}
 
-    def parcours_optimal_recursif(i, symbole_prec):
+    def parcours_optimal_recursif(i, symbol_prec):
         if i == 0:
             return B * T[0]
         if i in memorisation:
             return memorisation[i]
 
-        gain_max = parcours_optimal_recursif(i - 1, symbole_prec)
+        max_gain = parcours_optimal_recursif(i - 1, symbol_prec)
         for j in range(i):
-            gain = parcours_optimal_recursif(j, symbole_prec) + (A if C[i] == C[j] else B) * T[i]
-            gain_max = max(gain_max, gain)
+            if C[i] == C[j]:
+                gain = parcours_optimal_recursif(j, symbol_prec) + A * T[i]
+            else:
+                gain = parcours_optimal_recursif(j, symbol_prec) + B * T[i]
+            max_gain = max(max_gain, gain)
 
-        memorisation[i] = gain_max
-        return gain_max
+        memorisation[i] = max_gain
+        return max_gain
 
     return parcours_optimal_recursif(len(T) - 1, None)
-
-
-
 
 
 def parcours_optimal_top_down(T, C, A, B):
@@ -68,7 +64,11 @@ def parcours_optimal_top_down(T, C, A, B):
         if (i, symbole_prec) in memo:
             return memo[(i, symbole_prec)]
 
-        gain = B * T[i] if symbole_prec is None or C[i] != symbole_prec else A * T[i]
+        if symbole_prec is None or C[i] != symbole_prec:
+            gain = B * T[i]
+        else:
+            gain = A * T[i]
+
         gain_visite = gain + parcours_optimal_recursif(i + 1, C[i])
         gain_passage = parcours_optimal_recursif(i + 1, symbole_prec)
 
@@ -79,34 +79,33 @@ def parcours_optimal_top_down(T, C, A, B):
     return parcours_optimal_recursif(0, None)
 
 
-
-
 def parcours_optimal_bottom_up(T, C, A, B):
     n = len(T)
-    dp = [0] * n
-    indices_visites = []
+    memo = [0] * n
+    indices = []
 
-    dp[0] = B * T[0]
-    indices_visites.append(0)
+    memo[0] = B * T[0]
+    indices.append(0)
 
     for i in range(1, n):
-        gain_max = dp[i - 1]
-        index_a_visiter = -1
+        max_gain = memo[i - 1]
+        visit_index = -1
         for j in range(i):
-            gain = dp[j] + (A if C[i] == C[j] else B) * T[i]
-            if gain > gain_max:
-                gain_max = gain
-                index_a_visiter = j
+            if C[i] == C[j]:
+                gain = memo[j] + A * T[i]
+            else:
+                gain = memo[j] + B * T[i]
+            if gain > max_gain:
+                max_gain = gain
+                visit_index = j
 
-        if index_a_visiter != -1:
-            dp[i] = gain_max
-            indices_visites.append(i)
+        if visit_index != -1:
+            memo[i] = max_gain
+            indices.append(i)
         else:
-            dp[i] = dp[i - 1]
+            memo[i] = memo[i - 1]
 
-    return dp[-1], indices_visites
-
-
+    return memo[-1], indices
 
 
 def main():
